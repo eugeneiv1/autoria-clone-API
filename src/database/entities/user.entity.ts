@@ -1,5 +1,6 @@
 import { Column, Entity } from 'typeorm';
 
+import { EAccountType } from './enums/account-type';
 import { TableNameEnum } from './enums/table-name.enum';
 import { BaseEntity } from './models/base.entity';
 
@@ -14,7 +15,7 @@ export class UserEntity extends BaseEntity {
   @Column('text', { select: false })
   password: string;
 
-  @Column('text', { select: false })
+  @Column('text', { select: false, default: EAccountType.FREE })
   account_type: string;
 
   @Column('text', { select: false })
