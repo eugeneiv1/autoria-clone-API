@@ -1,8 +1,9 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { GlobalExceptionFilter } from './common/exceptions/global-exception.filter';
 import { SwaggerHelper } from './common/helpers/swagger.helper';
 import { AppConfig, Config } from './configs/config.type';
 import { AppModule } from './modules/app.module';
@@ -30,6 +31,16 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      enableDebugMessages: true,
+    }),
+  );
 
   const configService = app.get(ConfigService<Config>);
   const appConfig = configService.get<AppConfig>('app');

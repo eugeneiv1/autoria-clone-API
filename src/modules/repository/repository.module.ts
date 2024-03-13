@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 
 import { AdvertisementRepository } from './services/advertisement.repository';
 import { BrandRepository } from './services/brand.repository';
@@ -21,6 +21,7 @@ const repositories = [
   BrandRepository,
   AdvertisementRepository,
 ];
+@Global()
 @Module({
   imports: [],
   controllers: [],
