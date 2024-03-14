@@ -28,4 +28,8 @@ export default (): Config => ({
     refreshTokenExpiration:
       parseInt(process.env.AUTH_REFRESH_TOKEN_EXPIRATION) || 86400,
   },
+  superUser: {
+    email: process.env.SUPER_USER_EMAIL,
+    password: process.env.SUPER_USER_PASSWORD,
+  },
 });

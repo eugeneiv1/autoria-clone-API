@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsString,
-  Length,
-  Matches,
-} from 'class-validator';
+import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 export class SignUpRequestDto {
   @IsString()
@@ -25,10 +19,6 @@ export class SignUpRequestDto {
   @Length(0, 20)
   @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%_*#?&])[A-Za-z\d@$_!%*#?&]{8,}$/)
   password: string;
-
-  @ApiProperty({ default: false })
-  @IsBoolean()
-  isDealer: boolean;
 
   @IsNotEmpty()
   @IsString()

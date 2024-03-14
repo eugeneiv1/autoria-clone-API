@@ -3,6 +3,7 @@ export type Config = {
   postgres: PostgresConfig;
   redis: RedisConfig;
   jwt: JWTConfig;
+  superUser: SuperUserConfig;
 };
 
 export type AppConfig = {
@@ -29,4 +30,9 @@ export type JWTConfig = {
   accessTokenExpiration: number;
   refreshTokenSecret: string;
   refreshTokenExpiration: number;
+};
+
+export type SuperUserConfig = {
+  email: string;
+  password: string;
 };

@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
-import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { UserRepository } from '../../repository/services/user.repository';
 import { UserService } from '../../user/services/user.service';
+import { SignInRequestDto } from '../dto/request/sign-in.request.dto';
 import { SignUpRequestDto } from '../dto/request/sign-up.request.dto';
+import { AuthResponseDto } from '../dto/response/auth.response.dto';
+import { IUserData } from '../interfaces/user-data.interface';
 import { AuthMapper } from './auth.mapper';
-import { AuthCacheService } from './auth-cache.service';
 import { TokenService } from './token.service';
 
 @Injectable()
@@ -15,45 +16,71 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly userRepository: UserRepository,
     private readonly tokenService: TokenService,
-    private readonly refreshTokenRepository: RefreshTokenRepository,
-    private readonly authCacheService: AuthCacheService,
   ) {}
-  public async signUp(dto: SignUpRequestDto) {
-    let entity: any; // declare as let to define it later depending on user is single seller or dealer
+  public async signUp(dto: SignUpRequestDto): Promise<void> {
     await this.userService.isEmailUnique(dto.email);
 
     const hashedPassword = await bcrypt.hash(dto.password, 7);
 
-    // Check if registered user is Dealer to create not standard user but dealer
-    if (dto.isDealer) {
-      // entity = await this.dealerRepository.save(
-      // this.dealerRepository.create({...dto, password: hashedPassword})
-    } else {
-      entity = await this.userRepository.save(
-        this.userRepository.create({ ...dto, password: hashedPassword }),
-      );
-    }
+    await this.userRepository.save(
+      this.userRepository.create({ ...dto, password: hashedPassword }),
+    );
+  }
 
-    const tokenPair = await this.tokenService.generateTokenPair({
-      userId: entity.id,
-      deviceId: dto.deviceId,
+  public async signIn(dto: SignInRequestDto): Promise<AuthResponseDto> {
+    const userEntity = await this.userRepository.findOne({
+      where: { email: dto.email },
+      select: { password: true, id: true },
     });
 
-    await Promise.all([
-      this.authCacheService.saveAccessToken(
-        entity.id,
-        dto.deviceId,
-        tokenPair.accessToken,
-      ),
-      this.refreshTokenRepository.save(
-        this.refreshTokenRepository.create({
-          user_Id: entity.id,
-          refreshToken: tokenPair.refreshToken,
-          deviceId: dto.deviceId,
-        }),
-      ),
-    ]);
+    if (!userEntity) {
+      throw new UnauthorizedException();
+    }
 
-    return AuthMapper.toAuthResponse(entity, tokenPair);
+    const isPasswordMatch = await bcrypt.compare(
+      dto.password,
+      userEntity.password,
+    );
+
+    if (!isPasswordMatch) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.userRepository.findOneBy({ id: userEntity.id });
+
+    const tokenPair = await this.tokenService.generateTokenPair({
+      userId: user.id,
+      deviceId: dto.deviceId,
+      roles: user.roles,
+    });
+
+    await this.tokenService.saveTokens(user.id, dto.deviceId, tokenPair);
+
+    return AuthMapper.toAuthResponse(user, tokenPair);
+  }
+
+  public async logout(user: IUserData): Promise<void> {
+    await this.tokenService.deleteTokens(user.userId, user.deviceId);
+  }
+
+  public async refreshTokenPair(currentUser: IUserData) {
+    await this.tokenService.deleteTokens(
+      currentUser.userId,
+      currentUser.deviceId,
+    );
+
+    const tokenPair = await this.tokenService.generateTokenPair({
+      userId: currentUser.userId,
+      deviceId: currentUser.deviceId,
+      roles: currentUser.roles,
+    });
+
+    await this.tokenService.saveTokens(
+      currentUser.userId,
+      currentUser.deviceId,
+      tokenPair,
+    );
+
+    return tokenPair;
   }
 }

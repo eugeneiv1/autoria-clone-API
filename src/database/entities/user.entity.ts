@@ -21,7 +21,7 @@ export class UserEntity extends BaseEntity {
   @Column('text', { select: false, default: EAccountType.FREE })
   account_type: string;
 
-  @Column('text', { default: ['free'] })
+  @Column('text', { default: ['user'] })
   roles: string[];
 
   @OneToMany(() => AdvertisementEntity, (entity) => entity.user)

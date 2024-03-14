@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
 import { Config, JWTConfig } from '../../../configs/config.type';
+import { RefreshTokenRepository } from '../../repository/services/refresh-token.repository';
 import { TokenResponseDto } from '../dto/response/token.response.dto';
 import { ETokenType } from '../enums/token-type.enum';
 import { JwtPayloadType } from '../types/jwt-payload.type';
+import { AuthCacheService } from './auth-cache.service';
 
 @Injectable()
 export class TokenService {
@@ -13,6 +15,8 @@ export class TokenService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService<Config>,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly authCacheService: AuthCacheService,
   ) {
     this.jwtConfig = this.configService.get<JWTConfig>('jwt');
   }
@@ -25,22 +29,70 @@ export class TokenService {
     return { accessToken, refreshToken };
   }
 
-  public async generateToken(
+  public async checkToken(token: string, tokenType: ETokenType) {
+    try {
+      const secret = this.setSecret(tokenType);
+      return this.jwtService.verify(token, { secret });
+    } catch (e) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  public async saveTokens(
+    userId: string,
+    deviceId: string,
+    tokenPair: TokenResponseDto,
+  ) {
+    await Promise.all([
+      this.authCacheService.saveAccessToken(
+        userId,
+        deviceId,
+        tokenPair.accessToken,
+      ),
+      this.refreshTokenRepository.save(
+        this.refreshTokenRepository.create({
+          user_Id: userId,
+          refreshToken: tokenPair.refreshToken,
+          deviceId,
+        }),
+      ),
+    ]);
+  }
+
+  public async deleteTokens(userId: string, deviceId: string) {
+    await Promise.all([
+      this.refreshTokenRepository.delete({
+        user_Id: userId,
+        deviceId,
+      }),
+      this.authCacheService.deleteAccessToken(userId, deviceId),
+    ]);
+  }
+
+  private async generateToken(
     payload: JwtPayloadType,
     tokenType: ETokenType,
   ): Promise<string> {
-    let secret: string;
-    let expiresIn: number;
+    const secret = this.setSecret(tokenType);
+    const expiresIn = this.setExpiresIn(tokenType);
+    return await this.jwtService.signAsync(payload, { secret, expiresIn });
+  }
+
+  private setSecret(tokenType: ETokenType): string {
     switch (tokenType) {
       case ETokenType.ACCESS:
-        secret = this.jwtConfig.accessTokenSecret;
-        expiresIn = this.jwtConfig.accessTokenExpiration;
-        break;
+        return this.jwtConfig.accessTokenSecret;
       case ETokenType.REFRESH:
-        secret = this.jwtConfig.refreshTokenSecret;
-        expiresIn = this.jwtConfig.refreshTokenExpiration;
-        break;
+        return this.jwtConfig.accessTokenSecret;
     }
-    return await this.jwtService.signAsync(payload, { secret, expiresIn });
+  }
+
+  private setExpiresIn(tokenType: ETokenType) {
+    switch (tokenType) {
+      case ETokenType.ACCESS:
+        return this.jwtConfig.accessTokenExpiration;
+      case ETokenType.REFRESH:
+        return this.jwtConfig.refreshTokenExpiration;
+    }
   }
 }
