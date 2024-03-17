@@ -8,14 +8,14 @@ import { BaseEntity } from './models/base.entity';
 @Entity(TableNameEnum.MODELS)
 export class ModelEntity extends BaseEntity {
   @Column('text')
-  model: string;
+  name: string;
 
   @OneToMany(() => AdvertisementEntity, (entity) => entity.brand)
   advertisements?: AdvertisementEntity[];
 
   @Column()
-  brand_Id: string;
+  related_Id: string;
   @ManyToOne(() => BrandEntity, (entity) => entity.models)
-  @JoinColumn({ name: 'brand_Id' })
+  @JoinColumn({ name: 'related_Id' })
   brand?: BrandEntity;
 }

@@ -7,7 +7,7 @@ import { BaseEntity } from './models/base.entity';
 @Entity(TableNameEnum.REGIONS)
 export class RegionEntity extends BaseEntity {
   @Column('text')
-  region: string;
+  name: string;
 
   @OneToMany(() => AdvertisementEntity, (entity) => entity.region)
   advertisement?: AdvertisementEntity[];

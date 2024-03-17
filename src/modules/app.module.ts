@@ -4,9 +4,13 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from '../configs/config';
 import { AuthModule } from './auth/auth.module';
 import { SuperUserSeedService } from './auth/services/super-user.seed.service';
+import { BrandModule } from './brand/brand.module';
+import { CurrencyModule } from './currency/currency.module';
 import { HealthModule } from './health/health.module';
+import { ModelModule } from './model/model.module';
 import { PostgresModule } from './postgres/postgres.module';
 import { RedisModule } from './redis/redis.module';
+import { RegionModule } from './region/region.module';
 import { RepositoryModule } from './repository/repository.module';
 import { UserModule } from './user/user.module';
 
@@ -16,12 +20,16 @@ import { UserModule } from './user/user.module';
     HealthModule,
     PostgresModule,
     RedisModule,
+    CurrencyModule,
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,
     }),
     UserModule,
     AuthModule,
+    BrandModule,
+    RegionModule,
+    ModelModule,
   ],
   controllers: [],
   providers: [SuperUserSeedService],

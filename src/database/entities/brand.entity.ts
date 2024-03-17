@@ -8,7 +8,7 @@ import { BaseEntity } from './models/base.entity';
 @Entity(TableNameEnum.BRANDS)
 export class BrandEntity extends BaseEntity {
   @Column('text')
-  brand: string;
+  name: string;
 
   @OneToMany(() => AdvertisementEntity, (entity) => entity.brand)
   advertisements?: AdvertisementEntity[];

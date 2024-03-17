@@ -21,13 +21,15 @@ export class UserEntity extends BaseEntity {
   @Column('text', { select: false, default: EAccountType.FREE })
   account_type: string;
 
-  @Column('text', { default: ['user'] })
+  @Column('varchar', { array: true, default: ['user'] })
   roles: string[];
 
   @OneToMany(() => AdvertisementEntity, (entity) => entity.user)
   advertisements?: AdvertisementEntity[];
 
-  @OneToMany(() => RefreshTokenEntity, (entity) => entity.user)
+  @OneToMany(() => RefreshTokenEntity, (entity) => entity.user, {
+    cascade: true,
+  })
   refreshTokens?: RefreshTokenEntity[];
 
   @OneToMany(() => MessageEntity, (entity) => entity.author)

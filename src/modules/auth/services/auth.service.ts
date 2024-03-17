@@ -54,6 +54,7 @@ export class AuthService {
       roles: user.roles,
     });
 
+    await this.tokenService.deleteTokens(user.id, dto.deviceId);
     await this.tokenService.saveTokens(user.id, dto.deviceId, tokenPair);
 
     return AuthMapper.toAuthResponse(user, tokenPair);

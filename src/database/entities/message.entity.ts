@@ -9,15 +9,15 @@ export class MessageEntity extends BaseEntity {
   @Column('text')
   body: string;
 
-  @Column()
+  @Column({ nullable: true })
   author_Id: string;
   @ManyToOne(() => UserEntity, (entity) => entity.inbox)
   @JoinColumn({ name: 'author_Id' })
-  author?: UserEntity;
+  recipient?: UserEntity;
 
-  @Column()
+  @Column({ nullable: true })
   recipient_Id: string;
   @ManyToOne(() => UserEntity, (entity) => entity.sent)
   @JoinColumn({ name: 'recipient_Id' })
-  recipient?: UserEntity;
+  author?: UserEntity;
 }
