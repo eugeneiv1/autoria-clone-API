@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 
+import { AddNewItemsHelper } from '../common/helpers/add-new-items.helper';
 import configuration from '../configs/config';
 import { AdvertisementModule } from './advertisement/advertisement.module';
 import { AuthModule } from './auth/auth.module';
 import { SuperUserSeedService } from './auth/services/super-user.seed.service';
 import { BrandModule } from './brand/brand.module';
 import { CurrencyModule } from './currency/currency.module';
+import { DbInitService } from './db-init.service';
 import { HealthModule } from './health/health.module';
 import { ModelModule } from './model/model.module';
 import { PostgresModule } from './postgres/postgres.module';
@@ -36,7 +38,7 @@ import { UserModule } from './user/user.module';
     AdvertisementModule,
   ],
   controllers: [],
-  providers: [SuperUserSeedService],
+  providers: [SuperUserSeedService, DbInitService, AddNewItemsHelper],
 })
 export class AppModule {}
 

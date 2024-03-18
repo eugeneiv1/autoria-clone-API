@@ -17,7 +17,8 @@ export class AddNewItemsHelper {
       const entities = await entityRepository.findBy({
         name: In(dto.names),
       });
-      const brandNamesInDB = new Set(entities.map(({ brand }) => brand));
+      const brandNamesInDB = new Set(entities.map(({ name }) => name));
+      console.log(brandNamesInDB);
       const newBrandNames = dto.names.filter(
         (name) => !brandNamesInDB.has(name),
       );
