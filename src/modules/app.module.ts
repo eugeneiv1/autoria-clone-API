@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import configuration from '../configs/config';
+import { AdvertisementModule } from './advertisement/advertisement.module';
 import { AuthModule } from './auth/auth.module';
 import { SuperUserSeedService } from './auth/services/super-user.seed.service';
 import { BrandModule } from './brand/brand.module';
@@ -25,11 +27,13 @@ import { UserModule } from './user/user.module';
       load: [configuration],
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     AuthModule,
     BrandModule,
     RegionModule,
     ModelModule,
+    AdvertisementModule,
   ],
   controllers: [],
   providers: [SuperUserSeedService],

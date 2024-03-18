@@ -5,5 +5,5 @@ export class MessageRequestDto {
   recipientId: string;
 
   @IsString()
-  message: string;
+  body: string;
 }

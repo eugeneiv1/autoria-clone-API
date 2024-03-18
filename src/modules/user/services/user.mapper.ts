@@ -12,6 +12,8 @@ export class UserMapper {
       roles: user.roles,
       sent: user.sent,
       inbox: user.inbox,
+      account_type: user.account_type,
+      advertisements: user.advertisements,
     };
   }
 

@@ -6,8 +6,8 @@ import { forbiddenWords } from '../constants/forbidden-words.constant';
 export class ForbiddenWordsGuard implements CanActivate {
   canActivate(ctx: ExecutionContext): boolean {
     const request = ctx.switchToHttp().getRequest();
-    const { message } = request.body;
+    const { body } = request.body;
 
-    return !forbiddenWords.some((word) => message.toLowerCase().includes(word));
+    return !forbiddenWords.some((word) => body.toLowerCase().includes(word));
   }
 }

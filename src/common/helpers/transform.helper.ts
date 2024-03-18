@@ -3,6 +3,10 @@ export class TransformHelper {
     return value ? value.trim() : value;
   }
 
+  public static toUpperCase({ value }) {
+    return value ? value.toUpperCase() : value;
+  }
+
   public static trimArray({ value }) {
     return value && Array.isArray(value)
       ? value.map((item) => item.trim())

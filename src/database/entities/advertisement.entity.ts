@@ -1,7 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 import { BrandEntity } from './brand.entity';
-import { CurrencyTypeEnum } from './enums/currency-type.enum';
 import { TableNameEnum } from './enums/table-name.enum';
 import { ImageEntity } from './image.entity';
 import { ModelEntity } from './model.entity';
@@ -19,10 +18,10 @@ export class AdvertisementEntity extends BaseEntity {
   body: string;
 
   @Column('text')
-  currency: CurrencyTypeEnum;
+  initialCurrency: string;
 
   @Column('text')
-  price: number;
+  initialPrice: number;
 
   @OneToMany(() => ViewEntity, (entity) => entity.advertisement)
   views?: ViewEntity[];

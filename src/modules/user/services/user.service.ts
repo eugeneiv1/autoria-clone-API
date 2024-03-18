@@ -39,7 +39,7 @@ export class UserService {
 
     await this.messageRepository.save(
       this.messageRepository.create({
-        body: dto.message,
+        body: dto.body,
         author_Id: isId,
         recipient_Id: dto.recipientId,
       }),
@@ -88,7 +88,7 @@ export class UserService {
   }
 
   public async isUserExist(userId: string) {
-    const user = await this.userRepository.findOneBy({ id: userId });
+    const user = await this.userRepository.getUserById(userId);
     if (!user) {
       throw new NotFoundException();
     }

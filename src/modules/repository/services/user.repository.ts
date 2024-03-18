@@ -23,4 +23,20 @@ export class UserRepository extends Repository<UserEntity> {
     qb.skip(skip);
     return await qb.getManyAndCount();
   }
+
+  public async getUserById(userId: string): Promise<UserEntity> {
+    const qb = this.createQueryBuilder('user');
+
+    qb.leftJoinAndSelect('user.sent', 'sent', 'user.id = sent.recipient');
+    qb.leftJoinAndSelect('user.inbox', 'inbox', 'user.id = inbox.author');
+    qb.leftJoinAndSelect(
+      'user.advertisements',
+      'advertisement',
+      'user.id = advertisement.user_Id',
+    );
+
+    qb.where('user.id = :userId', { userId });
+
+    return await qb.getOne();
+  }
 }

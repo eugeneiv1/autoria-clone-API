@@ -18,7 +18,7 @@ export class UserEntity extends BaseEntity {
   @Column('text', { select: false })
   password: string;
 
-  @Column('text', { select: false, default: EAccountType.FREE })
+  @Column('text', { default: EAccountType.FREE })
   account_type: string;
 
   @Column('varchar', { array: true, default: ['user'] })
